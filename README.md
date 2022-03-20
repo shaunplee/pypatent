@@ -143,7 +143,7 @@ this_patent.fetch_details()
 * assignee_name: Assignee Name
 * assignee_loc: Assignee Location
 * family_id: Family ID
-* applicant_num: Applicant Number
+* application_num: Application Number
 * file_date: Filing date
 * claims: Claims Description (as a list)
 * description: Patent Description (as a list)
