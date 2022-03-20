@@ -147,6 +147,9 @@ this_patent.fetch_details()
 * file_date: Filing date
 * claims: Claims Description (as a list)
 * description: Patent Description (as a list)
+* us_refs: List of cited US Patent or US Patent Application Publication References
+* foreign_refs: List of cited foreign patent publications
+* non_patent_refs: List of cited non-patent literature
 
 ### Field Code Arguments for Search Function
 * PN: Patent Number
