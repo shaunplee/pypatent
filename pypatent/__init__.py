@@ -37,7 +37,7 @@ class WebConnection:
 
 
 class Patent:
-    def __init__(self, title: str, url: str, web_connection: WebConnection = None):
+    def __init__(self, title: str, url: str, web_connection: WebConnection = None, patent_num: str = None):
         if web_connection is not None:
             self.web_connection = web_connection
         else:
@@ -46,7 +46,10 @@ class Patent:
         self.url = url
         self.fetched_details = False
 
-        self.patent_num = None
+        if patent_num:
+            self.patent_num = patent_num
+        else:
+            self.patent_num = None
         self.patent_date = None
         self.file_date = None
         self.abstract = None
@@ -70,7 +73,11 @@ class Patent:
         r = self.web_connection.get(self.url)
         s = BeautifulSoup(r, 'html.parser')
         try:
-            self.patent_num = s.find(string='United States Patent ').find_next().text.replace('\n', '').strip()
+            parsed_patent_num = s.find(string='United States Patent ').find_next().text.replace('\n', '').strip()
+            if self.patent_num:
+                assert self.patent_num.replace(',', '') == parsed_patent_num.replace(',', '')
+            else:
+                self.patent_num = parsed_patent_num
         except:
             pass
 
@@ -162,10 +169,10 @@ class Patent:
                 if '/' in row.find('a').text:
                     # handle pub case
                     pub_no = row.find('a').text.replace('/', '')
-                    return Patent("", f"https://appft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PG01&p=1&u=%2Fnetahtml%2FPTO%2Fsrchnum.html&r=1&f=G&l=50&s1=%22{pub_no}%22.PGNR.")
+                    return Patent("", f"https://appft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PG01&p=1&u=%2Fnetahtml%2FPTO%2Fsrchnum.html&r=1&f=G&l=50&s1=%22{pub_no}%22.PGNR.", patent_num=pub_no)
                 else:
                     # handle patent case
-                    return Patent("", "https://patft.uspto.gov" + row.find('a')['href'])
+                    return Patent("", "https://patft.uspto.gov" + row.find('a')['href'], patent_num=row.find('a').text)
             self.us_refs = [construct_us_ref(r) for r in refs_table if r.find('a')]
         except:
             pass
