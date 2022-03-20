@@ -68,7 +68,7 @@ class Patent:
         self.foreign_refs = None
         self.non_patent_refs = None
 
-    def fetch_details(self):
+    def fetch_details(self, ignore=[]):
         self.fetched_details = True
         r = self.web_connection.get(self.url)
         s = BeautifulSoup(r, 'html.parser')
@@ -192,6 +192,8 @@ class Patent:
             pass
 
         try:
+            if 'claims' in ignore:
+                raise Exception
             claims = s.find(string=re.compile('Claims')).find_all_next(string=True)
             claims = claims[:claims.index('Description')]
             self.claims = [i.replace('\n', '').strip() for i in claims if i.replace('\n', '').strip() != '']
@@ -199,6 +201,8 @@ class Patent:
             pass
 
         try:
+            if 'description' in ignore:
+                raise Exception
             description = s.find(string=re.compile('Description')).find_all_next(string=True)
             self.description = [i.replace('\n', '').strip() for i in description if i.replace('\n', '').strip() not in ['', '* * * * *']]
         except:
