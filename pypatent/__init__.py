@@ -52,7 +52,7 @@ class Patent:
         self.abstract = None
         self.description = None
         self.inventors = None
-        self.applicant_num = None
+        self.application_num = None
         self.applicant_name = None
         self.applicant_city = None
         self.applicant_state = None
@@ -147,7 +147,7 @@ class Patent:
             pass
 
         try:
-            self.applicant_num = s.find(string=re.compile('Appl. No.:')).find_next().text.replace('\n', '').strip()
+            self.application_num = s.find(string=re.compile('Appl. No.:')).find_next().text.replace('\n', '').strip()
         except:
             pass
 
@@ -217,7 +217,7 @@ class Patent:
                 'assignee_name': self.assignee_name,
                 'assignee_loc': self.assignee_loc,
                 'family_id': self.family_id,
-                'applicant_num': self.applicant_num,
+                'application_num': self.application_num,
                 'claims': self.claims,
                 'description': self.description,
                 'url': self.url,
