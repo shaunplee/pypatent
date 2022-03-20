@@ -61,6 +61,9 @@ class Patent:
         self.assignee_loc = None
         self.family_id = None
         self.claims = None
+        self.us_refs = None
+        self.foreign_refs = None
+        self.non_patent_refs = None
 
     def fetch_details(self):
         self.fetched_details = True
@@ -154,6 +157,34 @@ class Patent:
             pass
 
         try:
+            refs_table = s.find(string='U.S. Patent Documents').find_next().find_all('tr')[1:]
+            def construct_us_ref(row):
+                if '/' in row.find('a').text:
+                    # handle pub case
+                    pub_no = row.find('a').text.replace('/', '')
+                    return Patent("", f"https://appft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PG01&p=1&u=%2Fnetahtml%2FPTO%2Fsrchnum.html&r=1&f=G&l=50&s1=%22{pub_no}%22.PGNR.")
+                else:
+                    # handle patent case
+                    return Patent("", "https://patft.uspto.gov" + row.find('a')['href'])
+            self.us_refs = [construct_us_ref(r) for r in refs_table if r.find('a')]
+        except:
+            pass
+
+        try:
+            refs_table = s.find(string='Foreign Patent Documents').find_next().find_all('tr')[1:]
+            def extract_string(row):
+                elems = [c for c in row.find_all('td', align='left')]
+                return elems[3].text.strip() + elems[1].text.strip()
+            self.foreign_refs = [extract_string(r) for r in refs_table if len(r) > 2]
+        except:
+            pass
+
+        try:
+            self.non_patent_refs = s.find(string='Other References').find_next('tr').find_next('td').text.split('\n')
+        except:
+            pass
+
+        try:
             claims = s.find(string=re.compile('Claims')).find_all_next(string=True)
             claims = claims[:claims.index('Description')]
             self.claims = [i.replace('\n', '').strip() for i in claims if i.replace('\n', '').strip() != '']
@@ -189,7 +220,10 @@ class Patent:
                 'applicant_num': self.applicant_num,
                 'claims': self.claims,
                 'description': self.description,
-                'url': self.url
+                'url': self.url,
+                'us_refs': self.us_refs,
+                'foreign_refs': self.foreign_refs,
+                'non_patent_refs': self.non_patent_refs
             }
         else:
             d = {
