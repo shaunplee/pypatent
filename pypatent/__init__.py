@@ -42,7 +42,7 @@ class Patent:
             self.web_connection = web_connection
         else:
             self.web_connection = WebConnection()
-        self.title = title
+        self.title = title if title else None
         self.url = url
         self.fetched_details = False
 
@@ -70,6 +70,12 @@ class Patent:
             self.patent_num = s.find(string='United States Patent ').find_next().text.replace('\n', '').strip()
         except:
             pass
+
+        if not self.title:
+            try:
+                self.title = s.find("font", size="+1").text.replace('\n', '').strip()
+            except:
+                pass
 
         try:
             self.patent_date = s.find_all(align='right', width='50%')[-1].text.replace('\n', '').strip()
